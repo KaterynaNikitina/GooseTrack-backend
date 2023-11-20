@@ -1,0 +1,1026 @@
+{
+  "openapi": "3.0.1",
+  "info": {
+    "version": "2.0.2",
+    "title": "API documentation",
+    "description": "Showing off API documentation for project 'gooseTrack' ",
+    "license": {
+      "name": "MIT",
+      "url": "https://opensource.org/licenses/MIT"
+    }
+  },
+  "consumes": ["application/json"],
+  "produces": ["application/json"],
+  "servers": [
+    {
+      "url": "http://localhost:3000/api"
+    },
+    {
+      "url": "https://goose-track-backend-deployment-q70i.onrender.com/api"
+    }
+  ],
+  "tags": [
+    {
+      "name": "Auth",
+      "description": "Authorization endpoints"
+    },
+    {
+      "name": "Tasks",
+      "description": "Tasks endpoints"
+    },
+    {
+      "name": "Reviews",
+      "description": "Reviews endpoints"
+    },
+    {
+      "name": "Statistics",
+      "description": "Statistics endpoints"
+    }
+  ],
+  "schemes": ["http", "https"],
+  "paths": {
+    "/auth/register": {
+      "post": {
+        "tags": ["Auth"],
+        "summary": "User registration",
+        "requestBody": {
+          "description": "Registration's object",
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/RegistrationRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RegistrationResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad request (invalid request body)",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "message": {
+                      "type": "string",
+                      "example": "Bad Request"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Email already exist",
+            "content": {}
+          }
+        }
+      }
+    },
+    "/auth/login": {
+      "post": {
+        "tags": ["Auth"],
+        "summary": "User authentication",
+        "requestBody": {
+          "description": "Login's object",
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/LoginRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/LoginResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad request (invalid request body)",
+            "content": {}
+          },
+          "401": {
+            "description": "Email or password is wrong",
+            "content": {}
+          }
+        }
+      }
+    },
+    "/users/current": {
+      "get": {
+        "tags": ["Auth"],
+        "summary": "get info about user",
+        "description": "",
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/getCurrentResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Not authorized.Invalid or not exists token",
+            "content": {}
+          }
+        }
+      }
+    },
+    "/auth/logout": {
+      "post": {
+        "tags": ["Auth"],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "summary": "user logout",
+        "description": "",
+        "responses": {
+          "204": {
+            "description": "no content",
+            "content": {}
+          },
+          "401": {
+            "description": "Not authorized.Invalid or not exists token",
+            "content": {}
+          }
+        }
+      }
+    },
+    "/users/edit": {
+      "patch": {
+        "tags": ["Auth"],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "summary": "edit user's information",
+        "description": "",
+        "requestBody": {
+          "description": "Edit user's form",
+          "required": true,
+          "content": {
+            "multipart/form-data": {
+              "schema": {
+                "$ref": "#/components/schemas/EditUserRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/getCurrentResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Not authorized.Invalid or not exists token",
+            "content": {}
+          }
+        }
+      }
+    },
+    "/users/verify/{verificationCode}": {
+      "get": {
+        "tags": ["Auth"],
+        "parameters": [
+          {
+            "name": "verificationCode",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "summary": "get status for verification",
+        "description": "get status for verification",
+        "responses": {
+          "200": {
+            "description": "Email verification successful",
+            "content": {}
+          },
+          "404": {
+            "description": "User not found",
+            "content": {}
+          }
+        }
+      }
+    },
+    "/users/verify": {
+      "post": {
+        "tags": ["Auth"],
+        "summary": "resend  for verification",
+        "description": "",
+        "requestBody": {
+          "description": "Login's object",
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "email": {
+                    "type": "string",
+                    "description": "User's email",
+                    "format": "email",
+                    "example": "goosetrack@ukr.net"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Email verification successful",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "email": {
+                      "type": "string",
+                      "description": "User's email",
+                      "format": "email",
+                      "example": "goosetrack@ukr.net"
+                    },
+                    "message": {
+                      "type": "string",
+                      "description": "message",
+                      "example": "Verify email resend success"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Email already verify",
+            "content": {}
+          },
+          "401": {
+            "description": "Email not found in this user",
+            "content": {}
+          },
+          "404": {
+            "description": "Email not found",
+            "content": {}
+          }
+        }
+      }
+    },
+    "/tasks/": {
+      "get": {
+        "tags": ["Tasks"],
+        "summary": "get all tasks, when you authorized,filter them",
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "filteredFrom",
+            "in": "query",
+            "schema": {
+              "format": "date",
+              "example": "2004-01-01"
+            }
+          },
+          {
+            "name": " filteredTo",
+            "in": "query",
+            "schema": {
+              "format": "date",
+              "example": "2004-01-0"
+            }
+          }
+        ],
+        "description": "",
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TaskIdResponse"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not found",
+            "content": {}
+          }
+        }
+      },
+      "post": {
+        "tags": ["Tasks"],
+        "summary": "add task, when you authorized",
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "description": "",
+        "requestBody": {
+          "description": "Login's object",
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/TaskPostRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TaskIdResponse"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not found",
+            "content": {}
+          }
+        }
+      }
+    },
+    "/tasks/{taskId}": {
+      "get": {
+        "tags": ["Tasks"],
+        "summary": "get task with taskId, when you authorized",
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "taskId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "description": "",
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TaskIdResponse"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not found",
+            "content": {}
+          }
+        }
+      },
+      "put": {
+        "tags": ["Tasks"],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "summary": "edit task with taskId, when you authorized",
+        "parameters": [
+          {
+            "name": "taskId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "description": "",
+        "requestBody": {
+          "description": "Login's object",
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/TaskPostRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TaskIdResponse"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not found",
+            "content": {}
+          }
+        }
+      },
+      "delete": {
+        "tags": ["Tasks"],
+        "summary": "delete task with taskId, when you authorized",
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "taskId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "description": "",
+        "responses": {
+          "204": {
+            "description": "no content",
+            "content": {}
+          },
+          "404": {
+            "description": "Not found",
+            "content": {}
+          }
+        }
+      }
+    },
+    "/reviews": {
+      "get": {
+        "tags": ["Reviews"],
+        "summary": "get all reviews",
+        "description": "",
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ReviewsOwnResponse"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not found",
+            "content": {}
+          }
+        }
+      }
+    },
+    "/reviews/own": {
+      "get": {
+        "tags": ["Reviews"],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "summary": "get user's one last review",
+        "description": "",
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ReviewsOwnResponse"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not found",
+            "content": {}
+          }
+        }
+      },
+      "post": {
+        "tags": ["Reviews"],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "summary": "add review",
+        "description": "",
+        "requestBody": {
+          "description": "Reviews's object",
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ReviewsRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ReviewsOwnResponse"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not found",
+            "content": {}
+          }
+        }
+      },
+      "patch": {
+        "tags": ["Reviews"],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "summary": "edit review",
+        "description": "",
+        "requestBody": {
+          "description": "Reviews's object",
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ReviewsRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ReviewsOwnResponse"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not found",
+            "content": {}
+          }
+        }
+      },
+      "delete": {
+        "tags": ["Reviews"],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "summary": "delete user's one last review",
+        "description": "",
+        "responses": {
+          "204": {
+            "description": "Delete success",
+            "content": {}
+          },
+          "404": {
+            "description": "Not found",
+            "content": {}
+          }
+        }
+      }
+    },
+    "/statistics": {
+      "get": {
+        "tags": ["Statistics"],
+        "summary": "get ",
+        "description": "",
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TaskIdResponse"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not found",
+            "content": {}
+          }
+        }
+      }
+    },
+    "/statistics/{date}": {
+      "get": {
+        "tags": ["Statistics"],
+        "description": "",
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "date",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TaskIdResponse"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not found",
+            "content": {}
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "securitySchemes": {
+      "bearerAuth": {
+        "type": "http",
+        "in": "header",
+        "name": "Authorization",
+        "description": "Bearer token to access these api endpoints",
+        "scheme": "bearer",
+        "bearerFormat": "JWT"
+      }
+    },
+    "schemas": {
+      "RegistrationRequest": {
+        "type": "object",
+        "required": ["email", "password", "userName"],
+        "properties": {
+          "email": {
+            "type": "string",
+            "description": "User's email",
+            "format": "email",
+            "example": "goosetrack@ukr.net"
+          },
+          "userName": {
+            "type": "string",
+            "description": "User's name (min 3)",
+            "example": "admin"
+          },
+          "password": {
+            "type": "string",
+            "description": "User's password(min 6,A-Z,a-z,0-9 required)",
+            "example": "Qqwerty1234"
+          }
+        },
+        "example": {
+          "email": "goosetrack@ukr.net",
+          "userName": "admin",
+          "password": "Qqwerty1234"
+        }
+      },
+      "RegistrationResponse": {
+        "type": "array",
+        "items": {
+          "type": "object",
+          "properties": {
+            "email": {
+              "type": "string",
+              "description": "User's email",
+              "format": "email"
+            },
+            "password": {
+              "type": "string",
+              "description": "User's password",
+              "example": "Qqwerty1234"
+            },
+            "userName": {
+              "type": "number",
+              "description": "User's name",
+              "example": "Maks Marzinkevich"
+            }
+          }
+        },
+        "example": {
+          "email": "goosetrack@ukr.net",
+          "userName": "admin",
+          "password": "Qqwerty1234"
+        }
+      },
+      "LoginRequest": {
+        "type": "object",
+        "required": ["email", "password"],
+        "properties": {
+          "email": {
+            "type": "string",
+            "description": "User's email",
+            "format": "email",
+            "example": "goosetrack@ukr.net"
+          },
+          "password": {
+            "type": "string",
+            "description": "User's password(min 6,A-Z,a-z,0-9 required)",
+            "example": "Qqwerty1234"
+          }
+        }
+      },
+      "LoginResponse": {
+        "type": "array",
+        "items": {
+          "type": "object",
+          "properties": {
+            "email": {
+              "type": "string",
+              "description": "User's email",
+              "format": "email",
+              "example": "goosetrack@ukr.net"
+            },
+            "token": {
+              "type": "string",
+              "description": "User's token "
+            }
+          }
+        },
+        "example": {
+          "email": "goosetrack@ukr.net",
+          "token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY1MzNiYWE1MTdhYWFmYzQ0NTg3YzIyMCIsImlhdCI6MTY5Nzg4ODkzOCwiZXhwIjoxNjk3OTcxNzM4fQ.0228XN-00ilueuKid8OSD0E1eNn11fvF0k3rqXlczEw"
+        }
+      },
+      "getCurrentResponse": {
+        "type": "array",
+        "items": {
+          "type": "object",
+          "properties": {
+            "email": {
+              "type": "string",
+              "description": "User's email",
+              "format": "email",
+              "example": "goosetrack@ukr.net"
+            },
+            "userName": {
+              "type": "string",
+              "description": "User's name (min 3)",
+              "example": "admin"
+            },
+            "phone": {
+              "type": "string",
+              "description": "User's phone (+380 + ... 9 number)",
+              "example": "+380931234567"
+            },
+            "skype": {
+              "type": "string",
+              "description": "User's skype",
+              "example": "nothing"
+            },
+            "birthday": {
+              "type": "string",
+              "description": "User's birthday (XXXX-XX-XX)",
+              "example": "1980-01-01"
+            },
+            "avatarURL": {
+              "type": "string",
+              "description": "User's avatar, url in cloud",
+              "example": "https://res.cloudinary.com/di2tkymun/image/upload/v1698065862/misc/photo_2022-06-07_23-54-03.jpg"
+            }
+          }
+        }
+      },
+      "EditUserRequest": {
+        "type": "object",
+        "properties": {
+          "email": {
+            "type": "string",
+            "description": "User's email",
+            "format": "email",
+            "example": "goosetrack@ukr.net"
+          },
+          "userName": {
+            "type": "string",
+            "description": "User's name (min 3)",
+            "example": "admin"
+          },
+          "phone": {
+            "type": "string",
+            "description": "User's phone (+380 + ... 9 number)",
+            "example": "+380931234567"
+          },
+          "skype": {
+            "type": "string",
+            "description": "User's skype",
+            "example": "nothing"
+          },
+          "birthday": {
+            "type": "string",
+            "description": "User's birthday (XXXX-XX-XX)",
+            "example": "1980-01-01"
+          },
+          "avatarURL": {
+            "type": "string",
+            "description": "User's avatar file,later url in cloud",
+            "format": "binary"
+          }
+        }
+      },
+      "TaskPostRequest": {
+        "type": "object",
+        "properties": {
+          "title": {
+            "type": "string",
+            "description": "Task'name ",
+            "example": "Читати книги ()"
+          },
+          "start": {
+            "type": "string",
+            "description": "Task'start (XX:XX)",
+            "example": "09:00"
+          },
+          "end": {
+            "type": "string",
+            "description": "Task'end (XX:XX)",
+            "example": "23:00"
+          },
+          "priority": {
+            "type": "string",
+            "description": "priority('low', 'medium', 'high')",
+            "example": "medium"
+          },
+          "date": {
+            "type": "string",
+            "description": "Date formate (XXXX-XX-XX)",
+            "example": "2023-10-23"
+          },
+          "category": {
+            "type": "string",
+            "description": "priority('to-do', 'in-progress', 'done')",
+            "example": "to-do"
+          }
+        }
+      },
+      "TaskIdResponse": {
+        "type": "array",
+        "items": {
+          "type": "object",
+          "properties": {
+            "_id": {
+              "type": "string",
+              "description": "Task's id",
+              "example": "6536dfa3f89017ea5de63642"
+            },
+            "title": {
+              "type": "string",
+              "description": "Task'name ",
+              "example": "Читати книги ()"
+            },
+            "start": {
+              "type": "string",
+              "description": "Task'start (XX:XX)",
+              "example": "09:00"
+            },
+            "end": {
+              "type": "string",
+              "description": "Task'end (XX:XX)",
+              "example": "23:00"
+            },
+            "priority": {
+              "type": "string",
+              "description": "priority('low', 'medium', 'high')",
+              "example": "medium"
+            },
+
+            "date": {
+              "type": "string",
+              "description": "Date formate (XXXX-XX-XX)",
+              "example": "2023-10-23"
+            },
+            "category": {
+              "type": "string",
+              "description": "priority('to-do', 'in-progress', 'done')",
+              "example": "to-do"
+            },
+            "owner": {
+              "type": "string",
+              "description": "User's Id",
+              "example": "6535732f1a6e6cb4f5e22b3f"
+            }
+          }
+        }
+      },
+      "ReviewsRequest": {
+        "type": "object",
+        "properties": {
+          "comment": {
+            "type": "string",
+            "description": "Reviews's comment ",
+            "example": "My favorite calendarNote."
+          },
+          "name": {
+            "type": "string",
+            "description": "Reviews's nameUser",
+            "example": "admin"
+          }
+        }
+      },
+      "ReviewsOwnResponse": {
+        "type": "array",
+        "items": {
+          "type": "object",
+          "properties": {
+            "_id": {
+              "type": "string",
+              "description": "Reviews's id",
+              "example": "6536e950f89017ea5de63651"
+            },
+            "comment": {
+              "type": "string",
+              "description": "Reviews's comment ",
+              "example": "My favorite calendarNote."
+            },
+            "name": {
+              "type": "string",
+              "description": "Reviews's nameUser",
+              "example": "admin"
+            },
+            "owner": {
+              "type": "string",
+              "description": "User's Id",
+              "example": "6535732f1a6e6cb4f5e22b3f"
+            }
+          }
+        }
+      }
+    }
+  }
+}
